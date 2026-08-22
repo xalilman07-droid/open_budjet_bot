@@ -9,7 +9,7 @@ from aiohttp import web
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 
-# Vergul bilan yozilgan guruh ID-larini to'g'ri ro'yxatga ajratib olamiz
+# Guruh ID-larini to'g'ri ro'yxat ko'rinishida ajratib olamiz
 GURUH_CHAT_IDS = [int(i.strip()) for i in os.getenv("GURUH_CHAT_ID", "0").split(",") if i.strip()]
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -23,7 +23,7 @@ async def send_budget_link():
         return
 
     try:
-        # Siz xohlagandek o'zgartirilgan chiroyli guruh matni
+        # Siz xohlagandek "Bizni oxirgi manzilga eltuvchi..." gapi olib tashlangan toza matn
         matn = (
             "🇺🇿 **OPEN BUDGET — OVOZ BERISH BOSHLANDI!**\n\n"
             "Hurmatli fuqaro! Open Budget loyihasiga ovoz berish jarayonlari davom etmoqda. "
@@ -34,13 +34,13 @@ async def send_budget_link():
             "☎️ +998972130304\n"
             "☎️ +998950278779\n\n"
             "Kim qachon bo'lsa ham telefon qilaversin, sizning ovozingiz biz uchun juda muhim! ✨\n\n"
-            "👇👇 **OVOZ BERISH UCHUN PASTDAGI ULKAN TUGMANI BOSING** 👇👇"
+            "👇👇 **QUYIDAGI ULKAN TUGMANI BOSING** 👇👇"
         )
         
-        # SIZ BERGAN ANIQ VA TO'G'RI LOYIHA HAVOLASI
+        # SIZ BERGAN ANIQ VA TO'G'RI OVOZ BERISH SAHIFASI
         OPEN_BUDGET_TARGET_URL = "https://openbudget.uz"
         
-        # Tugma buzilib ketmasligi uchun ulkan va xatosiz dizayn
+        # Ulkan tugma sozlamasi
         havola_tugmasi = InlineKeyboardMarkup(
             inline_keyboard=[
                 [
@@ -52,7 +52,6 @@ async def send_budget_link():
             ]
         )
         
-        # Har bir guruhga ketma-ket xabar yuborish (Sikl)
         for chat_id in GURUH_CHAT_IDS:
             try:
                 await bot.send_message(
@@ -64,14 +63,14 @@ async def send_budget_link():
                 )
                 logging.info(f"Xabar {chat_id} guruhiga muvaffaqiyatli yuborildi.")
             except Exception as group_error:
-                logging.error(f"{chat_id} guruhiga yuborishda xatolik (bot admin emas yoki ID xato): {group_error}")
+                logging.error(f"{chat_id} guruhiga yuborishda xatolik: {group_error}")
         
     except Exception as e:
         logging.error(f"Umumiy xatolik yuz berdi: {e}")
 
 @dp.message(CommandStart())
 async def cmd_start(message: Message):
-    await message.reply("Bot muvaffaqiyatli yangilandi va faol ishlamoqda!")
+    await message.reply("Bot faol ishlamoqda!")
 
 async def handle(request):
     return web.Response(text="Open Budget Bot is online!")
