@@ -23,12 +23,14 @@ async def send_budget_link():
         return
 
     try:
-        # SIZ BERGAN ANIQ VA TO'G'RI OVOZ BERISH HAVOLASI
+        # Siz bergan aniq loyiha havolasi
         OPEN_BUDGET_TARGET_URL = "https://openbudget.uz"
 
-        # Siz xohlagandek ochiq havolali toza matn (HTML formatida)
+        # Eng tepasiga ochiq havola qo'yilgan va hech qanday harf tushib qolmaydigan yakuniy matn
         matn = (
+            f"{OPEN_BUDGET_TARGET_URL}\n\n"
             "🇺🇿 <b>OPEN BUDGET — OVOZ BERISH BOSHLANDI!</b>\n\n"
+            "Open budjet DASHNABOD\n\n"
             "Hurmatli fuqaro! Open Budget loyihasiga ovoz berish jarayonlari davom etmoqda. "
             "O'z ovozingizni qishlog'imiz ravnaqi va rivoji uchun ayamaysiz degan umiddamiz.\n\n"
             "Ko'chalarimiz 🚘 <b>ASFALT BO'LISHI UCHUN</b> ovoz berishingizni so'raymiz! 🙏\n\n"
@@ -81,6 +83,5 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-
 
 
