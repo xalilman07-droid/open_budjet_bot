@@ -2,7 +2,7 @@ import asyncio
 import logging
 import os
 from aiogram import Bot, Dispatcher
-from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import Message
 from aiogram.filters import CommandStart
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from aiohttp import web
@@ -23,7 +23,10 @@ async def send_budget_link():
         return
 
     try:
-        # Bizni oxirgi manzilga eltuvchi... gapi olib tashlangan toza va chiroyli matn (HTML formatida)
+        # SIZ BERGAN ANIQ VA TO'G'RI OVOZ BERISH HAVOLASI
+        OPEN_BUDGET_TARGET_URL = "https://openbudget.uz"
+
+        # Siz xohlagandek ochiq havolali toza matn (HTML formatida)
         matn = (
             "🇺🇿 <b>OPEN BUDGET — OVOZ BERISH BOSHLANDI!</b>\n\n"
             "Hurmatli fuqaro! Open Budget loyihasiga ovoz berish jarayonlari davom etmoqda. "
@@ -34,22 +37,8 @@ async def send_budget_link():
             "☎️ +998972130304\n"
             "☎️ +998950278779\n\n"
             "Kim qachon bo'lsa ham telefon qilaversin, sizning ovozingiz biz uchun juda muhim! ✨\n\n"
-            "👇👇 <b>QUYIDAGI ULKAN TUGMANI BOSING</b> 👇👇"
-        )
-        
-        # SIZ BERGAN ANIQ VA TO'G'RI OVOZ BERISH HAVOLASI (HTMLda chiziqchalar xato bermaydi)
-        OPEN_BUDGET_TARGET_URL = "https://openbudget.uz"
-        
-        # Ulkan tugma ko'rinishi
-        havola_tugmasi = InlineKeyboardMarkup(
-            inline_keyboard=[
-                [
-                    InlineKeyboardButton(
-                        text="🔗 OVOZ BERISH UCHUN BU YERGA BOSING 🔗", 
-                        url=OPEN_BUDGET_TARGET_URL
-                    )
-                ]
-            ]
+            "👇👇 <b>OVOZ BERISH UCHUN SIZNING HAVOLANGIZ:</b> 👇👇\n"
+            f"{OPEN_BUDGET_TARGET_URL}"
         )
         
         # Har bir guruhga xabarni yuborish
@@ -58,9 +47,8 @@ async def send_budget_link():
                 await bot.send_message(
                     chat_id=chat_id, 
                     text=matn, 
-                    parse_mode="HTML",  # Markdown xatolaridan qochish uchun HTML tanlandi
-                    reply_markup=havola_tugmasi,
-                    disable_web_page_preview=True
+                    parse_mode="HTML",  # Xatosiz ishlashi uchun HTML format
+                    disable_web_page_preview=True  # Tagida ortiqcha katta rasm chiqib ketmasligi uchun
                 )
                 logging.info(f"Xabar {chat_id} guruhiga muvaffaqiyatli yuborildi.")
             except Exception as group_error:
@@ -92,7 +80,5 @@ async def main():
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
-    asyncio.run=True
-    import asyncio
     asyncio.run(main())
 
