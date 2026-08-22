@@ -9,7 +9,7 @@ from aiohttp import web
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 
-# DIQQAT: Tizim xato bermasligi uchun vergul bilan yozilgan guruh ID-larini to'g'ri ajratib olamiz
+# Vergul bilan yozilgan guruh ID-larini to'g'ri ro'yxatga ajratib olamiz
 GURUH_CHAT_IDS = [int(i.strip()) for i in os.getenv("GURUH_CHAT_ID", "0").split(",") if i.strip()]
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -23,23 +23,24 @@ async def send_budget_link():
         return
 
     try:
+        # Siz xohlagandek o'zgartirilgan chiroyli guruh matni
         matn = (
             "🇺🇿 **OPEN BUDGET — OVOZ BERISH BOSHLANDI!**\n\n"
             "Hurmatli fuqaro! Open Budget loyihasiga ovoz berish jarayonlari davom etmoqda. "
             "O'z ovozingizni qishlog'imiz ravnaqi va rivoji uchun ayamaysiz degan umiddamiz.\n\n"
-            "Bizni oxirgi manzilga eltuvchi ko'chalarimiz 🚘 **ASFALT BO'LISHI UCHUN** ovoz berishingizni so'raymiz! 🙏\n\n"
+            "Ko'chalarimiz 🚘 **ASFALT BO'LISHI UCHUN** ovoz berishingizni so'raymiz! 🙏\n\n"
             "Murojaat va ovoz berish bo'yicha yordam kerak bo'lsa, ushbu raqamlarga qo'ng'iroq qiling (7/24 faol):\n"
             "☎️ +998950760222\n"
             "☎️ +998972130304\n"
             "☎️ +998950278779\n\n"
             "Kim qachon bo'lsa ham telefon qilaversin, sizning ovozingiz biz uchun juda muhim! ✨\n\n"
-            "👇👇 **QUYIDAGI ULKAN TUGMANI BOSING** 👇👇"
+            "👇👇 **OVOZ BERISH UCHUN PASTDAGI ULKAN TUGMANI BOSING** 👇👇"
         )
         
-        # SIZ BERGAN ANIQ VA TO'G'RI OVOZ BERISH HAVOLASI
+        # SIZ BERGAN ANIQ VA TO'G'RI LOYIHA HAVOLASI
         OPEN_BUDGET_TARGET_URL = "https://openbudget.uz"
         
-        # Tugma buzilib ketmasligi uchun chiroyli va ulkan dizayn
+        # Tugma buzilib ketmasligi uchun ulkan va xatosiz dizayn
         havola_tugmasi = InlineKeyboardMarkup(
             inline_keyboard=[
                 [
@@ -51,7 +52,7 @@ async def send_budget_link():
             ]
         )
         
-        # Har bir guruhga ketma-ket xabar yuborish
+        # Har bir guruhga ketma-ket xabar yuborish (Sikl)
         for chat_id in GURUH_CHAT_IDS:
             try:
                 await bot.send_message(
@@ -91,7 +92,5 @@ async def main():
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
-    asyncio.run=True
-    import asyncio
     asyncio.run(main())
 
