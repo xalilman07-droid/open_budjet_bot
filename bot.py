@@ -8,7 +8,9 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from aiohttp import web
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
-GURUH_CHAT_ID = int(os.getenv("GURUH_CHAT_ID", "0"))
+
+# DIQQAT: Tizim xato bermasligi uchun vergul bilan yozilgan guruh ID-larini to'g'ri ajratib olamiz
+GURUH_CHAT_IDS = [int(i.strip()) for i in os.getenv("GURUH_CHAT_ID", "0").split(",") if i.strip()]
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
@@ -16,8 +18,11 @@ bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 
 async def send_budget_link():
+    if not GURUH_CHAT_IDS:
+        logging.warning("Hech qanday guruh ID raqamlari kiritilmagan!")
+        return
+
     try:
-        # Guruhda chiquvchi asosiy matn
         matn = (
             "🇺🇿 **OPEN BUDGET — OVOZ BERISH BOSHLANDI!**\n\n"
             "Hurmatli fuqaro! Open Budget loyihasiga ovoz berish jarayonlari davom etmoqda. "
@@ -28,42 +33,40 @@ async def send_budget_link():
             "☎️ +998972130304\n"
             "☎️ +998950278779\n\n"
             "Kim qachon bo'lsa ham telefon qilaversin, sizning ovozingiz biz uchun juda muhim! ✨\n\n"
-            "👇👇 **OVOZ BERISH UCHUN PASTDAGI KATTA TUGMALARNI BOSING** 👇👇"
+            "👇👇 **QUYIDAGI ULKAN TUGMANI BOSING** 👇👇"
         )
         
-        # Siz taqdim etgan to'g'ri va aniq havola
-        OPEN_BUDGET_TARGET_URL = "https://new.openbudget.uz/uz/initiative-budget/active-initiatives/55/b773e0e7-b83f-40c7-998a-9bba8e2401c2"
+        # SIZ BERGAN ANIQ VA TO'G'RI OVOZ BERISH HAVOLASI
+        OPEN_BUDGET_TARGET_URL = "https://openbudget.uz"
         
-        # Tugmalarni yaqqol ko'rinishi uchun 2 qatorli ulkan dizaynda yaratamiz
+        # Tugma buzilib ketmasligi uchun chiroyli va ulkan dizayn
         havola_tugmasi = InlineKeyboardMarkup(
             inline_keyboard=[
                 [
                     InlineKeyboardButton(
-                        text="📢 OVOZ BERISH SAHIFASIGA O'TISH 📢", 
-                        url=OPEN_BUDGET_TARGET_URL
-                    )
-                ],
-                [
-                    InlineKeyboardButton(
-                        text="🛑 SIZNING OVOZINGIZ SHU YERDA! BOSING 🛑", 
+                        text="🔗 OVOZ BERISH UCHUN BU YERGA BOSING 🔗", 
                         url=OPEN_BUDGET_TARGET_URL
                     )
                 ]
             ]
         )
         
-        # Guruhga yuborish qismi
-        await bot.send_message(
-            chat_id=GURUH_CHAT_ID, 
-            text=matn, 
-            parse_mode="Markdown", 
-            reply_markup=havola_tugmasi,
-            disable_web_page_preview=True  # Ortiqcha rasm chiqib joyni band qilmasligi uchun
-        )
-        logging.info("Yangilangan ulkan tugmali xabar muvaffaqiyatli yuborildi.")
+        # Har bir guruhga ketma-ket xabar yuborish
+        for chat_id in GURUH_CHAT_IDS:
+            try:
+                await bot.send_message(
+                    chat_id=chat_id, 
+                    text=matn, 
+                    parse_mode="Markdown", 
+                    reply_markup=havola_tugmasi,
+                    disable_web_page_preview=True
+                )
+                logging.info(f"Xabar {chat_id} guruhiga muvaffaqiyatli yuborildi.")
+            except Exception as group_error:
+                logging.error(f"{chat_id} guruhiga yuborishda xatolik (bot admin emas yoki ID xato): {group_error}")
         
     except Exception as e:
-        logging.error(f"Xabar yuborishda xatolik yuz berdi: {e}")
+        logging.error(f"Umumiy xatolik yuz berdi: {e}")
 
 @dp.message(CommandStart())
 async def cmd_start(message: Message):
@@ -88,5 +91,7 @@ async def main():
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
+    asyncio.run=True
+    import asyncio
     asyncio.run(main())
 
