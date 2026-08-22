@@ -8,7 +8,9 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from aiohttp import web
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
-GURUH_CHAT_ID = int(os.getenv("GURUH_CHAT_ID", "0"))
+
+# DIQQAT: Endi bu yerda guruh ID-lari vergul bilan ajratib yoziladi
+GURUH_CHAT_IDS = [int(i.strip()) for i in os.getenv("GURUH_CHAT_ID", "0").split(",") if i.strip()]
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
@@ -16,6 +18,11 @@ bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 
 async def send_budget_link():
+    # Agar guruhlar ro'yxati bo'sh bo'lsa, funksiyani to'xtatamiz
+    if not GURUH_CHAT_IDS:
+        logging.warning("Hech qanday guruh ID raqamlari kiritilmagan!")
+        return
+
     try:
         matn = (
             "🇺🇿 **OPEN BUDGET — OVOZ BERISH BOSHLANDI!**\n\n"
@@ -41,17 +48,22 @@ async def send_budget_link():
             ]
         )
         
-        await bot.send_message(
-            chat_id=GURUH_CHAT_ID, 
-            text=matn, 
-            parse_mode="Markdown", 
-            reply_markup=havola_tugmasi,
-            disable_web_page_preview=True
-        )
-        logging.info("Xabar guruhga muvaffaqiyatli yuborildi.")
+        # SIKL (FOR LOOP): Kod har 5 minutda har bir guruhga ketma-ket xabar yuboradi
+        for chat_id in GURUH_CHAT_IDS:
+            try:
+                await bot.send_message(
+                    chat_id=chat_id, 
+                    text=matn, 
+                    parse_mode="Markdown", 
+                    reply_markup=havola_tugmasi,
+                    disable_web_page_preview=True
+                )
+                logging.info(f"Xabar {chat_id} guruhiga muvaffaqiyatli yuborildi.")
+            except Exception as group_error:
+                logging.error(f"{chat_id} guruhiga yuborishda xatolik (bot admin emas yoki ID xato): {group_error}")
         
     except Exception as e:
-        logging.error(f"Xatolik yuz berdi: {e}")
+        logging.error(f"Umumiy xatolik yuz berdi: {e}")
 
 @dp.message(CommandStart())
 async def cmd_start(message: Message):
@@ -77,3 +89,4 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+
