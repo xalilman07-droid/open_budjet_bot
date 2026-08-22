@@ -9,8 +9,11 @@ from aiohttp import web
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 
-# Vergul orqali yozilgan guruh ID raqamlarini to'g'ri ro'yxatga ajratib olamiz
+# Guruh ID-larini ro'yxatga ajratib olamiz
 GURUH_CHAT_IDS = [int(i.strip()) for i in os.getenv("GURUH_CHAT_ID", "0").split(",") if i.strip()]
+
+# DIQQAT: Havolani Render panelidagi "OPEN_BUDGET_URL" degan joydan majburiy jonli o'qiydi!
+OPEN_BUDGET_TARGET_URL = os.getenv("OPEN_BUDGET_URL", "https://openbudget.uz")
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
@@ -23,10 +26,7 @@ async def send_budget_link():
         return
 
     try:
-        # Siz bergan aniq loyiha havolasi
-        OPEN_BUDGET_TARGET_URL = "https://openbudget.uz"
-
-        # Eng tepasiga ochiq havola qo'yilgan va hech qanday harf tushib qolmaydigan yakuniy matn
+        # Siz xohlagandek barcha yozuvlar va havolalar joylashgan yakuniy toza matn
         matn = (
             f"{OPEN_BUDGET_TARGET_URL}\n\n"
             "🇺🇿 <b>OPEN BUDGET — OVOZ BERISH BOSHLANDI!</b>\n\n"
@@ -43,14 +43,13 @@ async def send_budget_link():
             f"{OPEN_BUDGET_TARGET_URL}"
         )
         
-        # Har bir guruhga xabarni yuborish
         for chat_id in GURUH_CHAT_IDS:
             try:
                 await bot.send_message(
                     chat_id=chat_id, 
                     text=matn, 
-                    parse_mode="HTML",  # Xatosiz ishlashi uchun HTML format
-                    disable_web_page_preview=True  # Tagida ortiqcha katta rasm chiqib ketmasligi uchun
+                    parse_mode="HTML",
+                    disable_web_page_preview=True
                 )
                 logging.info(f"Xabar {chat_id} guruhiga muvaffaqiyatli yuborildi.")
             except Exception as group_error:
@@ -83,5 +82,4 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-
 
